@@ -3,9 +3,18 @@ import React, { Component } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/FontAwesome';
-// import { Container } from './styles';
+import api from '~/services/api';
 
 export default class Home extends Component {
+  state = {
+    repo: ''
+  };
+
+  getRepo = async () => {
+    const { repo } = this.state;
+    const response = await api.get(`/${repo}`);
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -18,11 +27,13 @@ export default class Home extends Component {
               autoCapitalize="none"
               autoCorrect={false}
               placeholder="Adicionar novo repositório"
+              value={this.state.repo}
+              onChangeText={text => this.setState({ repo: text })}
             />
           </View>
 
           <View style={styles.icon}>
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity onPress={() => this.getRepo()}>
               <Icon name="plus" size={28} />
             </TouchableOpacity>
           </View>
