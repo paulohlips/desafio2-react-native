@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
   },
   repo: {
     flexDirection: 'row',
-    marginVertical: 10,
     marginHorizontal: 10,
     paddingHorizontal: 10,
     paddingVertical: 10,
