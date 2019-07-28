@@ -8,6 +8,7 @@ import {
   AsyncStorage,
   FlatList,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -18,18 +19,21 @@ export default class Home extends Component {
   state = {
     repoUrl: '',
     repos: [],
+    loading: false,
   };
 
   async componentDidMount() {
+    this.setState({ loading: true });
     const localRepos = await AsyncStorage.getItem('repository');
-    console.tron.log('LocalRepos', localRepos);
     if (localRepos) {
-      this.setState({ repos: JSON.parse(localRepos) });
+      this.setState({ repos: JSON.parse(localRepos), loading: false });
     }
   }
 
   getRepo = async () => {
     const { repoUrl, repos } = this.state;
+
+    this.setState({ loading: true });
 
     const response = await api.get(`/${repoUrl}`);
     const rep = response.data;
@@ -38,18 +42,20 @@ export default class Home extends Component {
       name: rep.name,
       org: rep.owner.login,
       avatar: rep.owner.avatar_url,
+      endpoint: repoUrl,
     };
 
-    //this.setState({ repos: [...repos, data] });
-    this.setState(
-      { repos: [...repos, data] },
-      async () =>
-        await AsyncStorage.setItem('repository', JSON.stringify(repos)),
-      console.tron.log(this.state)
-    );
-
-    this.renderList(repos);
+    this.setState({ repos: [...repos, data] });
+    this.storeRepos()
   };
+
+  storeRepos = async () => {
+    const { repos } = this.state;
+    await AsyncStorage.setItem('repository', JSON.stringify(repos));
+
+    this.setState({ loading: false });
+    this.renderList(repos);
+  }
 
   renderListItem = ({ item }) => <RepositoryItem repository={item} />;
 
@@ -71,6 +77,8 @@ export default class Home extends Component {
   };
 
   render() {
+    const { loading, repoUrl } = this.state;
+
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -96,12 +104,11 @@ export default class Home extends Component {
             </TouchableOpacity>
           </View>
         </View>
-
-        <View style={styles.renderList}>
-          <TouchableOpacity onLongPress={() => {}}>
-            {this.renderList()}
-          </TouchableOpacity>
-        </View>
+        {loading ? (
+          <ActivityIndicator size={12} color="#FFF" />
+        ) : (
+          <View style={styles.renderList}>{this.renderList()}</View>
+        )}
       </View>
     );
   }
