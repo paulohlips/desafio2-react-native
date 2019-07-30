@@ -12,7 +12,7 @@ class RepositoryItem extends Component {
       <TouchableOpacity
         onPress={() => {
           this.props.navigation.navigate('Issues', {
-            param: this.props.repository.endpoint,
+            param: repository.endpoint,
           });
         }}
       >
